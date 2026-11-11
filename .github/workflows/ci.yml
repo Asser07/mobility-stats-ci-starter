@@ -8,15 +8,22 @@ permissions:
   contents: read
 
 jobs:
-  quality:
-    runs-on: ubuntu-latest
+    jobs:
+        quality:
+        strategy:
+          fail-fast: false
+       matrix:
+        python-version: ["3.12", "3.13"]
 
+    runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
 
-      - name: Install uv
+      - name: Install uv and Python
         uses: astral-sh/setup-uv@v10.0.0
+        with:
+            python-version: ${{ matrix.python-version }}
 
       - name: Sync project
         run: uv sync --locked
@@ -26,16 +33,3 @@ jobs:
 
       - name: Check formatting
         run: uv run --locked ruff format --check .
-        
-   quality:
-        strategy:
-            fail-fast: false
-            matrix:
-                python-version: ["3.12", "3.13"]
-
-        runs-on: ubuntu-latest
-
-        -name: Install uv and Python
-uses: astral-sh/setup-uv@v10.0.0
-with:
-    python-version: ${{ matrix.python-version }}
